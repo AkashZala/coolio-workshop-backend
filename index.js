@@ -29,6 +29,9 @@ app.get('/api/players/:id', async (req, res, next) => {
             WHERE id = $1;
         `
         const response = await client.query(SQL, [req.params.id]);
+        if (response.rows.length === 0) {
+            throw new Error('ID does not exist');
+        }
         res.send(response.rows);
     } catch (error) {
         next(error);
@@ -75,6 +78,15 @@ app.put('/api/players/:id', async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+});
+
+//Errors, custom 404
+app.use('*', (req, res, next) => {
+    res.status(404).send('Invalid Route');
+});
+//Errors error-handler
+app.use((err, req, res, next) => {
+    res.status(500).send(err.message);
 });
 
 const start = async () => {
